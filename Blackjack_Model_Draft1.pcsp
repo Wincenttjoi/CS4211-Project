@@ -1,31 +1,24 @@
-﻿// turn 1 for dealer, 2 for player
-var turn = na;
-var myscore = 0;
+﻿var myscore = 0;
 var dealerscore = 0;
 
-enum{myturn, dealerturn, na};
-enum{one, two, three};
-
-//var one = 0;
-//var two = 1;
-//var three = 2;
-var four = 3;
-var five = 4;
-var six = 5;
-var seven = 6;
-var eight = 7;
-var nine = 8;
-var ten = 9;
-var jack = 10;
-var queen = 11;
-var king = 12;
-var ace = 13;
+enum{one, two, three, four, five, six, seven, eight, nine, ten, jack, queen, king, ace};
 
 // 999 denotes 1 or 11 based on dealer's hand
 var cardScore = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 999];
 var cardProb = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
 
-playerFirstCard = []i:{one, two, three}@FirstDraw {myscore = cardScore[i]; cardProb[i] = cardProb[i] - 1;} -> Skip;
+//playerFirstCard = []i:{one, two, three}@FirstDraw {myscore = cardScore[i]; cardProb[i] = cardProb[i] - 1;} -> Skip;
+playerFirstCard = []i:{one}@PlayerFirstDraw {
+					myscore = myscore + cardScore[i]; 
+					cardProb[i] = cardProb[i] - 1;
+					} -> dealerFirstCard;
+
+dealerFirstCard = []i:{one}@DealerFirstDraw {myscore = myscore + cardScore[i]; cardProb[i] = cardProb[i] - 1;} -> playerSecondCard;
+
+playerSecondCard = []i:{one}@PlayerSecondDraw {myscore = myscore + cardScore[i]; cardProb[i] = cardProb[i] - 1;} -> dealerSecondCard;
+
+dealerSecondCard = []i:{one}@DealerSecondDraw {myscore = myscore + cardScore[i]; cardProb[i] = cardProb[i] - 1;} -> Skip;
+
 
 #define playerWin (myscore > dealerscore);
 #assert playerFirstCard reaches playerWin with prob;
