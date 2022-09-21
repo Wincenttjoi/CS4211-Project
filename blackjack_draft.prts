@@ -1,0 +1,67 @@
+﻿// Player rules
+#define players_count 6;
+#define dealer_position players_count;
+// 0..players_count-1 are the players, players_count is the dealer
+
+// Card rules
+#define decks_count 2;
+#define deck_size 52;
+enum{one, two, three, four, five, six, seven, eight, nine, ten, jack, queen, king, ace};
+var cards_in_deck : {0..14*decks_count} = [4(14 * decks_count)]; // Initially assign 4 * number of decks for each card.
+var card_values = [1..10, 10(3), 11]; // 1 to 10, Jack, Queen, King, Ace
+
+// Game rules
+#define max_split 1;
+#define min_dealer_hand_value 17;
+#define max_hand_value 21;
+#define bet_size 5;
+var blackjack_multiplier = (3/2); // using variable because constants can only be integer / boolean
+
+// Game state
+var players_hand_size[players_count]; // initialized to zero
+var players_hand_value[players_count]; 
+
+var dealer_card_value = 0;
+var player0_has_ace = false;
+var dealer_has_ace = false;
+
+var player0_capital = 100;
+var whose_turn = 0; 
+
+updateAfterDraw(person, card_index) =
+	update_deck{cards_in_deck[card_index]--} -> 
+	update_hand_size{players_hand_size[person]++} ->
+	update_hand_value{players_hand_value[person] = players_hand_value[person] + card_values[card_index]} -> 
+	if (bust || players_hand_value[person] > 17) { Stop } else { draw(person) };
+	
+draw(person) = pcase {
+	cards_in_deck[0]: updateAfterDraw(person, 0)
+	cards_in_deck[1]: updateAfterDraw(person, 1)
+	cards_in_deck[2]: updateAfterDraw(person, 2)
+	cards_in_deck[3]: updateAfterDraw(person, 3)
+	cards_in_deck[4]: updateAfterDraw(person, 4)
+	cards_in_deck[5]: updateAfterDraw(person, 5)
+	cards_in_deck[6]: updateAfterDraw(person, 6)
+	cards_in_deck[7]: updateAfterDraw(person, 7)
+	cards_in_deck[8]: updateAfterDraw(person, 8)
+	cards_in_deck[9]: updateAfterDraw(person, 9)
+	cards_in_deck[10]: updateAfterDraw(person, 10)
+	cards_in_deck[11]: updateAfterDraw(person, 11)
+	cards_in_deck[12]: updateAfterDraw(person, 12)
+	cards_in_deck[13]: updateAfterDraw(person, 13)
+//	-> handleAce:{if(players_hand_value[person] > max_hand_value) {players_hand_value[person] = players_hand_value[person] - 10;} 
+};
+
+#define player_draw_one_or_two players_hand_value[0] < 2;
+#define bust players_hand_value[0] > 21;
+Game() = draw(0);
+#assert Game() reaches bust with prob; // Get chance of player getting a bust if he only stops drawing when he has 17 or above card value
+
+//deal() =
+//playerHit()
+//dealerHit()
+//playerStand()
+//dealerStand()
+//playerDoubleDown()
+//playerSplit()
+//playerSurrender()
