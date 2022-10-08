@@ -1,0 +1,111 @@
+﻿// Game states
+
+//    A    B
+// -----+-----+
+// |    |     |
+// | 3  |  5  |
+// |    |     |
+// |===========
+// |    |     |
+// | 4  |  6  |
+// |    |     |
+// -----+-----+
+
+enum{grid_three, grid_four, grid_five, grid_six}
+var team_A1_player_pos = grid_three;
+var team_B1_player_pos = grid_six;
+var ball_pos = 0;
+var set_num = 1;
+var team_A_set_score = 0;
+var team_B_set_score = 0;
+var team_A_game_score = 0;
+var team_B_game_score = 0;
+var turn = na; 
+var won = na;
+
+// Game rules
+#define max_total_sets 3;
+#define max_total_pts 21;
+#define max_total_pts_last_set 15;
+#define winning_set_lead 2;
+#define max_touch 3; // dig -> set -> spike (common sequence)
+
+// Action probabilities
+#define team_A_cut_shot_prob 40;
+#define team_A_rollshot_shot_prob 30;
+#define team_A_spike_shot_prob 30;
+
+BeachVolleyBallGame = WhoServe1st; (TeamAServe [] TeamB_Serve);
+
+WhoServe1st = []i:{team_A1_player_pos,team_B1_player_pos}@ TossCoin{turn = i} -> Skip;
+TeamAServe = [won == na && turn == team_A1_player_pos ]Team_A_has_ball -> Serve_A;
+TeamBServe = [won == na && turn == team_B1_player_pos ]Team_B_has_ball -> Serve_B;
+
+#define team_A_win_game team_A_game_score == 2;
+#define team_B_win_game team_B_game_score == 2;
+#define team_A_win_set team_A_set_score >= team_B_set_score + 2 && 
+	((set_num == 3 && team_A_set_score >= max_total_pts_last_set) ||
+	(team_A_set_score >= max_total_pts));
+#define team_B_win_set team_B_set_score >= team_A_set_score + 2 && 
+	((set_num == 3 && team_B_set_score >= max_total_pts_last_set) ||
+	(team_B_set_score >= max_total_pts));
+	
+new_set = resetScore{team_A_set_score=0; team_B_set_score=0;}
+	-> incrementSet
+	
+	
+Next_Pt = Serve_A [] Serve_B [] ([won != na] GameOver -> Skip);
+
+Serve_A = pcase {
+    90: Serve_in{} -> Dig_B
+    10: Fault{} -> Next_Pt{team_A_set_score = team_A_set_score + 1;} -> if (team_A_win_set) {new_set} else {TeamBServe}
+};
+
+Dig_A = pcase {
+    90: Set_success{} -> Set_A
+    10: Fault{} -> Next_Pt
+};
+
+Set_A = pcase {
+    90: Spike_success{} -> Spike_A
+    10: Fault{} -> Next_Pt
+};
+
+Spike_A = pcase {
+    25: Over_and_Received{} -> Dig_B
+    25: Blocked{} -> Block_B
+    25: Fault{} -> Next_Pt
+    25: Spike_success{} -> Next_Pt
+};
+
+Block_A = pcase {
+    90: Block_success{} -> Next_Pt
+    10: Fault{} -> Next_Pt
+};
+
+Serve_B = pcase {
+    90: Dig_A{} -> Dig_A
+    10: Fault{} -> Next_Pt
+};
+
+Dig_B = pcase {
+    90: Set_B{} -> Set_B
+    10: Fault{} -> Next_Pt
+};
+
+Set_B = pcase {
+    90: Spike_B{} -> Spike_B
+    10: Fault{} -> Next_Pt
+};
+
+Spike_B = pcase {
+    25: Over_and_Received{} -> Dig_A
+    25: Blocked{} -> Block_A
+    25: Fault{} -> Next_Pt
+    25: Spike_success{} -> Next_Pt
+};
+
+Block_B = pcase {
+    90: Block_success{} -> Next_Pt
+    10: Fault{} -> Next_Pt
+};
