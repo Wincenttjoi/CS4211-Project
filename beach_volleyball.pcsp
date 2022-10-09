@@ -1,5 +1,6 @@
 ﻿// Game states
-
+// TODO: update to grid 1-8 for full game
+// TODO: team side change court every multiple seven points in sets 1 and 2, and every 5 points in set 3
 //    A    B
 // -----+-----+
 // |    ‖     |
@@ -11,8 +12,23 @@
 // |    ‖     |
 // -----+-----+
 
-enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven, grid_eight}
+enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven, grid_eight, out_of_court};
 
+// Game rules
+#define team_A 1;
+#define team_B 2;
+#define na 0;
+//testing
+#define max_total_sets 3;
+#define max_total_pts 2;
+#define max_total_pts_last_set 2;
+//#define max_total_sets 3;
+//#define max_total_pts 21;
+//#define max_total_pts_last_set 15;
+#define winning_set_lead 2;
+#define max_touch 3; // dig -> set -> spike (common sequence) to be used for full game
+
+// TODO: teamA2 and teamB2 to represent second player in each team
 var team_A1_player_pos = grid_three;
 var team_B1_player_pos = grid_six;
 var ball_pos = 0;
@@ -24,21 +40,11 @@ var team_B_game_score = 0;
 var turn = na; 
 var won = na;
 
-// Game rules
-#define team_A 1;
-#define team_B 2;
-#define max_total_sets 3;
-#define max_total_pts 21;
-#define max_total_pts_last_set 15;
-#define winning_set_lead 2;
-#define max_touch 3; // dig -> set -> spike (common sequence)
-#define out_of_court -1;
-
-BeachVolleyBallGame = WhoServe1st; (TeamAServe [] TeamB_Serve);
+BeachVolleyBallGame = WhoServe1st; (TeamAServe [] TeamBServe);
 
 WhoServe1st = []i:{team_A,team_B}@ TossCoin{turn = i} -> Skip;
-TeamAServe = [won == na && turn == team_A]Team_A_has_ball -> Serve_A;
-TeamBServe = [won == na && turn == team_B]Team_B_has_ball -> Serve_B;
+TeamAServe = [won == na && turn == team_A]Team_A_has_ball{ball_pos = grid_three; team_A1_player_pos = grid_three;} -> Serve_A;
+TeamBServe = [won == na && turn == team_B]Team_B_has_ball{ball_pos = grid_six; team_B1_player_pos = grid_six;} -> Serve_B;
 
 #define team_A_win_game team_A_game_score == 2;
 #define team_B_win_game team_B_game_score == 2;
@@ -48,80 +54,110 @@ TeamBServe = [won == na && turn == team_B]Team_B_has_ball -> Serve_B;
 #define team_B_win_set team_B_set_score >= team_A_set_score + 2 && 
 	((set_num == 3 && team_B_set_score >= max_total_pts_last_set) ||
 	(team_B_set_score >= max_total_pts));
-	
+
+// assume they always start at 3 and 6
+// TODO: the logic who serves next, is it the friend or same person?
+#define players_starting_position team_A1_player_pos == grid_three && team_B1_player_pos == grid_six;
+
+// Full game todo: retoss coin again if third round instead of using the same team 
 New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++ } else {team_B_game_score++ }}
 	-> resetScore{team_A_set_score=0; team_B_set_score=0;}
 	-> incrementSet{set_num++}
-	-> checkForWin{if (team_A_win_game) { won = teamA } else if (team_B_win_game) { won = teamB } }
-	-> (TeamAServe [] TeamB_Serve);
+	-> checkForWin{if (team_A_win_game) { won = team_A } else if (team_B_win_game) { won = team_B } }
+	-> (TeamAServe [] TeamBServe);
 
-Increment_Team_A_Set_Score = increment{team_A_set_score++} -> if (team_A_win_set) {New_Set} else {TeamBServe};
-Increment_Team_B_Set_Score = increment{team_B_set_score++} -> if (team_B_win_set) {New_Set} else {TeamAServe};
+// TODO: Make all 4 players reposition themselves to starting grid for new point
+// Can have some rules who is the one serving? (for full game)
+Increment_Team_A_Set_Score = increment{team_A_set_score++} -> if (team_A_win_set) {New_Set} else {TeamAServe};
+Increment_Team_B_Set_Score = increment{team_B_set_score++} -> if (team_B_win_set) {New_Set} else {TeamBServe};
 
+// TODO: opponent can dig at grid 5-8
+// current assumption is starting position is 3 and 6 for serving
 Serve_A = pcase {
-    90: Serve_in{ball_pos = grid_five} -> Dig_B(grid_five)
-    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
-};
-
-Dig_A(ball_pos) = pcase {
-    90: Dig_success{if(ball_pos == grid_three) {team_B1_player_pos = ball_pos; grid_pos = grid_four} 
-    	else if (ball_pos == grid_four) {team_B1_player_pos = ball_pos; grid_pos = grid_three}}
-    	-> Set_B(grid_pos)
-    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
-};
-
-
-Set_A = pcase {
-    90: Set_success{} -> Attack_A
-    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
-};
-
-Attack_A = pcase {
-    100: Spike{} -> Spike_A
-    // to expand with rollshot, cutshot etc
-};
-
-Spike_A = pcase {
-    75: Block_B{} -> Block_B
-    25: Dig_B{} -> Dig_B
-    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
-};
-
-Block_A = pcase {
-    90: Block_success{} -> Next_Pt
+    90: [ball_pos == grid_three && players_starting_position]Serve_in{ball_pos = grid_five} -> Dig_B
     10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Serve_B = pcase {
-    90: Serve_in{ball_pos = } -> Dig_A
+    90: [ball_pos == grid_six && players_starting_position]Serve_in{ball_pos = grid_four} -> Dig_A
     10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
-Dig_B(ball_pos) = pcase {
-    90: Dig_success{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; grid_pos = grid_six} 
-    	else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; grid_pos = grid_five}}
-    	-> Set_B(grid_pos)
+// We can dig to same court or different side of court for flexibility
+// TODO: ball_pos can be grid 5-8
+// Can you dig again after a dig?
+Dig_A = pcase {
+    50: [ball_pos == grid_three || ball_pos == grid_four]Dig_opposite{if(ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_four;} 
+    	else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_three}}
+    	-> Set_A
+    50: [ball_pos == grid_three || ball_pos == grid_four]Dig_same_side{if(ball_pos == grid_three) {team_A1_player_pos = ball_pos;} 
+    	else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; }}
+    	-> Set_A
     10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
-
-Set_B(grid_pos) = pcase {
-    90: Set_success{ball_pos = grid_pos; team_B1_player_pos = grid_pos} -> Attack_B
+Dig_B = pcase {
+    50: [ball_pos == grid_five || ball_pos == grid_six]Dig_opposite{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_six;} 
+    	else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_five}}
+    	-> Set_B
+    50: [ball_pos == grid_five || ball_pos == grid_six]Dig_same_side{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos;} 
+    	else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; }}
+    	-> Set_B
     10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+};
+
+// TODO: can set to opposite or same grid (currently assume same grid)
+Set_A = pcase {
+	90: [ball_pos == grid_three || ball_pos == grid_four] Set_success{team_A1_player_pos = ball_pos;} -> Attack_A
+    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+};
+
+Set_B = pcase {
+    90: [ball_pos == grid_five || ball_pos == grid_six] Set_success{team_B1_player_pos = ball_pos;} -> Attack_B
+    10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+};
+
+// TODO: to expand with rollshot, cutshot etc
+// Attack process is just for decision making for the attacker, no change in ball_pos or player position should be done here
+Attack_A = pcase {
+    100: Spike -> Spike_A
 };
 
 Attack_B = pcase {
-    100: Spike{} -> Spike_B
-    // to expand with rollshot, cutshot etc
+    100: Spike -> Spike_B
+};
+
+// assumption: gets blocked directly infront instead of diagonal court (although the spike intended to be diagonal)
+// if spike is not blocked, then the opponent will dig (assume opposite court for full game extensibility)
+Spike_A = pcase {
+    75: gets_blocked{if(ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_five;}
+    		else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_six;}} -> Block_B
+    25: gets_digged{if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_six;}
+    		else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_five;}} -> Dig_B
+    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Spike_B = pcase {
-    75: Block_A{} -> Block_A
-    25: Dig_A{} -> Dig_A
+    75: gets_blocked{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_three;}
+    		else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_four;}} -> Block_A
+    25: gets_digged{if (ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_four;}
+    		else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_three;}} -> Dig_A
     10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
+// TODO: can block and ball drop to diagonal court?
+// now assume block drop straight
+Block_A = pcase {
+    90: block_straight{if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_five;}
+    		else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_three;}} -> Dig_B
+    10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+};
+
 Block_B = pcase {
-    90: Block_success{} -> Next_Pt
+    90: block_straight{if (ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_three;}
+    		else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_four;}} -> Dig_A
     10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
+
+#assert BeachVolleyBallGame reaches team_A_win_game with prob;
+
