@@ -20,8 +20,8 @@ enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven,
 #define na 0;
 //for testing use lower points 
 #define max_total_sets 3;
-#define max_total_pts 7;
-#define max_total_pts_last_set 5;
+#define max_total_pts 21;
+#define max_total_pts_last_set 15;
 //#define max_total_sets 3;
 //#define max_total_pts 21;
 //#define max_total_pts_last_set 15;
@@ -29,10 +29,10 @@ enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven,
 #define max_touch 3; // dig -> set -> spike (common sequence) to be used for full game
 
 // TODO: teamA2 and teamB2 to represent second player in each team
-var team_A1_player_pos = grid_three;
-var team_B1_player_pos = grid_six;
-var ball_pos = 0;
-var set_num = 1;
+hvar team_A1_player_pos = grid_three;
+hvar team_B1_player_pos = grid_six;
+hvar ball_pos = 0;
+hvar set_num = 1;
 var team_A_set_score = 0;
 var team_B_set_score = 0;
 var team_A_game_score = 0;
