@@ -81,37 +81,36 @@ Increment_Team_B_Set_Score = increment{team_B_set_score++;} -> swapPlayerAServer
 
 
 Serve_A_Player1 = pcase {
-    25: Serve_short_diagonal{ball_pos = grid_five} -> Dig_B
-    25: Serve_long_diagonal{ball_pos = grid_seven} -> Dig_B
-    25: Serve_short_straight{ball_pos = grid_six} -> Dig_B
-    25: Serve_long_straight{ball_pos = grid_eight} -> Dig_B
+    25: Serve_short_diagonal{ball_pos = grid_five; team_A1_player_pos = ball_pos;} -> Dig_B
+    25: Serve_long_diagonal{ball_pos = grid_seven; team_A1_player_pos = ball_pos;} -> Dig_B
+    25: Serve_short_straight{ball_pos = grid_six; team_A1_player_pos = ball_pos;} -> Dig_B
+    25: Serve_long_straight{ball_pos = grid_eight; team_A1_player_pos = ball_pos;} -> Dig_B
     50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 Serve_A_Player2 = pcase {
-    25: Serve_short_diagonal{ball_pos = grid_six} -> Dig_B
-    25: Serve_long_diagonal{ball_pos = grid_eight} -> Dig_B
-    25: Serve_short_straight{ball_pos = grid_five} -> Dig_B
-    25: Serve_long_straight{ball_pos = grid_seven} -> Dig_B
+    25: Serve_short_diagonal{ball_pos = grid_six; team_A2_player_pos = ball_pos;} -> Dig_B
+    25: Serve_long_diagonal{ball_pos = grid_eight; team_A2_player_pos = ball_pos;} -> Dig_B
+    25: Serve_short_straight{ball_pos = grid_five; team_A2_player_pos = ball_pos;} -> Dig_B
+    25: Serve_long_straight{ball_pos = grid_seven; team_A2_player_pos = ball_pos;} -> Dig_B
     50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Serve_B_Player1 = pcase {
-    25: Serve_short_diagonal{ball_pos = grid_three} -> Dig_A
-    25: Serve_long_diagonal{ball_pos = grid_one} -> Dig_A
-    25: Serve_short_straight{ball_pos = grid_four} -> Dig_A
-    25: Serve_long_straight{ball_pos = grid_two} -> Dig_A
+    25: Serve_short_diagonal{ball_pos = grid_three; team_B1_player_pos = ball_pos;} -> Dig_A
+    25: Serve_long_diagonal{ball_pos = grid_one; team_B1_player_pos = ball_pos;} -> Dig_A
+    25: Serve_short_straight{ball_pos = grid_four; team_B1_player_pos = ball_pos;} -> Dig_A
+    25: Serve_long_straight{ball_pos = grid_two; team_B1_player_pos = ball_pos;} -> Dig_A
     50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 Serve_B_Player2 = pcase {
-    25: Serve_short_diagonal{ball_pos = grid_four} -> Dig_A
-    25: Serve_long_diagonal{ball_pos = grid_two} -> Dig_A
-    25: Serve_short_straight{ball_pos = grid_three} -> Dig_A
-    25: Serve_long_straight{ball_pos = grid_one} -> Dig_A
+    25: Serve_short_diagonal{ball_pos = grid_four; team_B2_player_pos = ball_pos;} -> Dig_A
+    25: Serve_long_diagonal{ball_pos = grid_two; team_B2_player_pos = ball_pos;} -> Dig_A
+    25: Serve_short_straight{ball_pos = grid_three; team_B2_player_pos = ball_pos;} -> Dig_A
+    25: Serve_long_straight{ball_pos = grid_one; team_B2_player_pos = ball_pos;} -> Dig_A
     50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
-// We can dig to same court or different side of court for flexibility
-// TODO: ball_pos can be grid 5-8
+// We can dig to same court or different side of court for flexibility 
 // Can you dig again after a dig?
 // Can you dig directly straight to opponent court?
 Dig_A = pcase {
