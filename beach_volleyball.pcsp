@@ -37,6 +37,7 @@ var team_B_game_score = 0;
 var turnToServe = na; 
 var checkAPlayerServe = 1 // 1 means Team A player 1 serve, 0 means  Team A player 2 serve
 var checkBPlayerServe = 1 // 1 means Team B player 1 serve, 0 means  Team B player 2 serve
+var firstBall = 1;
 var gameWon = na;
 
 BeachVolleyBallGame = WhoServe1st; (TeamAServeNewSet [] TeamBServeNewSet);
@@ -76,8 +77,15 @@ New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++; } else {tea
 	-> checkTeamServeNext{if (turnToServe == team_A) {turnToServe = team_B; TeamAServeNewSet} else {turnToServe = team_A; TeamBServeNewSet}};
 Reset_ball_and_players(ball_reset_pos) = reset_ball_players{ ball_pos = ball_reset_pos; players_starting_position} -> Skip; 
 
-Increment_Team_A_Set_Score = increment{team_A_set_score++;} -> swapPlayerBServer{if (checkBPlayerServe==1) {checkBPlayerServe=0;} else {checkBPlayerServe=1;}} -> if (team_A_win_set) {New_Set} else {TeamAServe};
-Increment_Team_B_Set_Score = increment{team_B_set_score++;} -> swapPlayerAServer{if (checkAPlayerServe==1) {checkAPlayerServe=0;} else {checkAPlayerServe=1;}} -> if (team_B_win_set) {New_Set} else {TeamBServe};
+Increment_Team_A_Set_Score = increment{team_A_set_score++;} 
+            -> swapPlayerBServer{if (checkBPlayerServe==1) {checkBPlayerServe=0;} else {checkBPlayerServe=1;}} 
+            -> resetFirstBall{firstBall=1;}
+            -> if (team_A_win_set) {New_Set} else {TeamAServe};
+
+Increment_Team_B_Set_Score = increment{team_B_set_score++;} 
+            -> swapPlayerAServer{if (checkAPlayerServe==1) {checkAPlayerServe=0;} else {checkAPlayerServe=1;}} 
+            -> resetFirstBall{firstBall=1;}
+            -> if (team_B_win_set) {New_Set} else {TeamBServe};
 
 
 Serve_A_Player1 = pcase {
@@ -102,6 +110,7 @@ Serve_B_Player1 = pcase {
     25: Serve_long_straight{ball_pos = grid_two; team_B1_player_pos = ball_pos;} -> Dig_A
     50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
+
 Serve_B_Player2 = pcase {
     25: Serve_short_diagonal{ball_pos = grid_four; team_B2_player_pos = ball_pos;} -> Dig_A
     25: Serve_long_diagonal{ball_pos = grid_two; team_B2_player_pos = ball_pos;} -> Dig_A
@@ -112,24 +121,46 @@ Serve_B_Player2 = pcase {
 
 // We can dig to same court or different side of court for flexibility 
 // Can you dig again after a dig?
-// Can you dig directly straight to opponent court?
-Dig_A = pcase {
-    25: [ball_pos == grid_three || ball_pos == grid_four]Dig_opposite_court{if(ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_four;} 
-    	else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_three}}
-    	-> Set_A
-    25: [ball_pos == grid_three || ball_pos == grid_four]Dig_same_court{team_A1_player_pos = ball_pos;} 
-    	-> Set_A
+// Can you dig directly straight to opponent court?  
+// Player 1 only dig serves, not spikes
+DigA = dig{if (firstBall == 1) { if (ball_pos == 2 || ball_pos == 4) {DigServe_A_Player1} else {DigServe_A_Player2}  } 
+                                else { DigSpike_A_Player1;}}
+DigB = dig{if (firstBall == 1) { if (ball_pos == 2 || ball_pos == 4) {DigServe_B_Player1} else {DigServe_B_Player2}  } 
+                                else { DigSpike_B_Player1;}}
+
+DigServe_A_Player1 = pcase {
+    25: Dig_serve_left{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_one;} 
+            else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_three}}
+            -> {firstBall = 0}
+            -> Set_A
+    25: Dig_serve_diagonal{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_three;} 
+            else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_one}}
+            -> {firstBall = 0}
+            -> Set_A
+    25: Dig_serve_upwards{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_two;} 
+            else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_five}}
+            -> {firstBall = 0}
+            -> Set_A
+    25: Dig_serve_front{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_four;} -> {firstBall = 0} -> Set_A
+    25: Dig_serve_backwards{if(ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_two;} -> {firstBall = 0} -> Set_A
     50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
+// TODO repeat ^ for player 2 and team B
 
-Dig_B = pcase {
-    25: [ball_pos == grid_five || ball_pos == grid_six]Dig_opposite_court{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_six;} 
-    	else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_five}}
-    	-> Set_B
-    25: [ball_pos == grid_five || ball_pos == grid_six]Dig_same_court{team_B1_player_pos = ball_pos;} 
-    	-> Set_B
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
-};
+// Too many permutations, each pos A1 goes to, has 4 places the ball can go, not done
+DigSpike_A_Player1 = pcase {
+    25: Dig_spike_left{if(team_A2_player_pos == 3 && ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_one;} 
+            else if (team_A2_player_pos == 4 && ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_three}}
+            -> Set_A
+    25: Dig_spike_diagonal{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_three;} 
+            else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_one}}
+            -> Set_A
+    25: Dig_spike_upwards{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_two;} 
+            else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_five}}
+            -> Set_A
+    25: Dig_spike_front{if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_four;} -> Set_A 
+    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+}; 
 
 // TODO: can set to opposite or same grid (currently assume same grid)
 Set_A = pcase {
