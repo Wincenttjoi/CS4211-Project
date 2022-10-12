@@ -66,23 +66,22 @@ TeamBServe = [gameWon == na]{if (checkBPlayerServe==1) {TeamBPlayer1Serve} else{
 	((set_num == max_total_sets && team_B_set_score >= max_total_pts_last_set) ||
 	(team_B_set_score >= max_total_pts));
 
-// TODO: the logic who serves next, is it the friend or same person?
-#define players_starting_position team_A1_player_pos == grid_two && team_A2_player_pos == grid_one && team_B1_player_pos == grid_eight && team_B2_player_pos == grid_seven;
+#define players_starting_position team_A1_player_pos = grid_two; team_A2_player_pos = grid_one; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;
 
 // Full game todo: retoss coin again if third round instead of using the same team 
-New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++; turnToServe == team_B; } else {team_B_game_score++; turnToServe == team_A; }}
+New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++; } else {team_B_game_score++; }}
 	-> resetScore{team_A_set_score=0; team_B_set_score=0;}
 	-> incrementSet{set_num++}
 	-> checkForWin{if (team_A_win_game) { gameWon = team_A } else if (team_B_win_game) { gameWon = team_B } }
-	-> checkTeamServeNext{if (turnToServe == team_A) {TeamAServeNewSet} else {TeamBServeNewSet}};
+	-> checkTeamServeNext{if (turnToServe == team_A) {turnToServe = team_B; TeamAServeNewSet} else {turnToServe = team_A; TeamBServeNewSet}};
 
 // TODO: Make all 4 players reposition themselves to starting grid for new point
 // Can have some rules who is the one serving? (for full game)
-Increment_Team_A_Set_Score = increment{team_A_set_score++;} -> swapPlayerBServer{if (checkAPlayerServe==1) {checkBPlayerServe=0;} else {checkBPlayerServe=1;}} -> if (team_A_win_set) {New_Set} else {TeamAServe};
-Increment_Team_B_Set_Score = increment{team_B_set_score++;} -> swapPlayerAServer{if (checkBPlayerServe==1) {checkAPlayerServe=0;} else {checkAPlayerServe=1;}} -> if (team_B_win_set) {New_Set} else {TeamBServe};
+Increment_Team_A_Set_Score = increment{team_A_set_score++;} -> swapPlayerBServer{if (checkBPlayerServe==1) {checkBPlayerServe=0;} else {checkBPlayerServe=1;}} -> if (team_A_win_set) {New_Set} else {TeamAServe};
+Increment_Team_B_Set_Score = increment{team_B_set_score++;} -> swapPlayerAServer{if (checkAPlayerServe==1) {checkAPlayerServe=0;} else {checkAPlayerServe=1;}} -> if (team_B_win_set) {New_Set} else {TeamBServe};
 
 
-Reset_ball_and_players(ball_reset_pos) = reset_ball_players{ ball_pos = ball_reset_pos; team_A1_player_pos == grid_two && team_A2_player_pos == grid_one && team_B1_player_pos == grid_eight && team_B2_player_pos == grid_seven;} -> Skip;
+Reset_ball_and_players(ball_reset_pos) = reset_ball_players{ ball_pos = ball_reset_pos; players_starting_position} -> Skip;
 // TODO: can dig from back grid to any position in opposite court
 // current assumption is starting position is 3 and 6 for serving
 Serve_A = pcase {
