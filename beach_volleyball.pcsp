@@ -1,16 +1,15 @@
-﻿// Game states
-// TODO: update to grid 1-8 for full game
+﻿// Game states 
 // TODO: team side change court every multiple seven points in sets 1 and 2, and every 5 points in set 3
-//    A    B
-// -----+-----+
-// |    ‖     |
-// | 3  ‖  5  |
-// |    ‖     |
-// |----‖-----|
-// |    ‖     |
-// | 4  ‖  6  |
-// |    ‖     |
-// -----+-----+
+//       A           B
+// +-----+-----+-----+-----+
+// |     |     ‖     |     |
+// |  1  |  3  ‖  5  |  7  |
+// |     |     ‖     |     |
+// |-----|-----‖-----|-----|
+// |     |     ‖     |     |
+// |  2  |  4  ‖  6  |  8  |
+// |     |     ‖     |     |
+// +-----+-----+-----+-----+
 
 enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven, grid_eight, out_of_court};
 
@@ -21,16 +20,14 @@ enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven,
 //for testing use lower points 
 #define max_total_sets 3;
 #define max_total_pts 21;
-#define max_total_pts_last_set 15;
-//#define max_total_sets 3;
-//#define max_total_pts 21;
-//#define max_total_pts_last_set 15;
+#define max_total_pts_last_set 15; 
 #define winning_set_lead 0;
 #define max_touch 3; // dig -> set -> spike (common sequence) to be used for full game
-
-// TODO: teamA2 and teamB2 to represent second player in each team
-hvar team_A1_player_pos = grid_three;
-hvar team_B1_player_pos = grid_six;
+ 
+hvar team_A1_player_pos = grid_two;
+hvar team_A2_player_pos = grid_one;
+hvar team_B1_player_pos = grid_eight;
+hvar team_B2_player_pos = grid_seven;
 hvar ball_pos = 0;
 hvar set_num = 1;
 var team_A_set_score = 0;
@@ -44,8 +41,18 @@ BeachVolleyBallGame = WhoServe1st; (TeamAServeNewSet [] TeamBServeNewSet);
 
 WhoServe1st = []i:{team_A,team_B}@ TossCoin{turn = i} -> Skip;
 // Only used for first serve of the set, will use turn = team A or B based on coin toss
-TeamAServeNewSet = [won == na && turn == team_A]Team_A_has_ball{ball_pos = grid_three; team_A1_player_pos = grid_three; team_B1_player_pos = grid_six;} -> Serve_A;
-TeamBServeNewSet = [won == na && turn == team_B]Team_B_has_ball{ball_pos = grid_six; team_A1_player_pos = grid_three; team_B1_player_pos = grid_six;} -> Serve_B;
+TeamAServeNewSet = [won == na && turn == team_A] -> (TeamAPlayer1Serve [] TeamAPlayer2Serve);
+TeamBServeNewSet = [won == na && turn == team_B] -> (TeamBPlayer1Serve [] TeamBPlayer2Serve);
+
+TeamAPlayer1Serve = Team_A_has_ball{ball_pos = grid_one; team_A2_player_pos = grid_one; team_A1_player_pos = grid_two; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} 
+        -> Serve_A;
+TeamAPlayer2Serve = Team_A_has_ball{ball_pos = grid_two; team_A2_player_pos = grid_one; team_A1_player_pos = grid_two; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} 
+        -> Serve_A;
+TeamBPlayer1Serve = Team_B_has_ball{ball_pos = grid_seven; team_B2_player_pos = grid_seven; team_B1_player_pos = grid_eight; team_A1_player_pos = grid_two; team_A2_player_pos = grid_one;} 
+        -> Serve_B;
+TeamBPlayer2Serve = Team_B_has_ball{ball_pos = grid_seven; team_B2_player_pos = grid_seven; team_B1_player_pos = grid_eight; team_A1_player_pos = grid_two; team_A2_player_pos = grid_one;} 
+        -> Serve_B;
+# TODO combine ↑ 4 players serve and remove ↓ 2 serves
 TeamAServe = [won == na]Team_A_has_ball{ball_pos = grid_three; team_A1_player_pos = grid_three; team_B1_player_pos = grid_six;} -> Serve_A;
 TeamBServe = [won == na]Team_B_has_ball{ball_pos = grid_six; team_A1_player_pos = grid_three; team_B1_player_pos = grid_six;} -> Serve_B;
 
@@ -60,7 +67,7 @@ TeamBServe = [won == na]Team_B_has_ball{ball_pos = grid_six; team_A1_player_pos 
 
 // assume they always start at 3 and 6
 // TODO: the logic who serves next, is it the friend or same person?
-#define players_starting_position team_A1_player_pos == grid_three && team_B1_player_pos == grid_six;
+#define players_starting_position team_A1_player_pos == grid_two && team_A2_player_pos == grid_one && team_B1_player_pos == grid_eight && team_B2_player_pos == grid_seven;
 
 // Full game todo: retoss coin again if third round instead of using the same team 
 New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++ } else {team_B_game_score++ }}
@@ -151,8 +158,6 @@ Spike_B = pcase {
     50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
-// TODO: can block and ball drop to diagonal court?
-// now assume block drop straight
 Block_A = pcase {
     50: block_straight{if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_five;}
     		else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_six;}} -> Dig_B
