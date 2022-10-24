@@ -46,10 +46,10 @@ BeachVolleyBallGame = WhoServe1st; (TeamAServeNewSet [] TeamBServeNewSet);
 WhoServe1st = []i:{team_A,team_B}@ TossCoin{turnToServe = i} -> Skip;
 // Only used for first serve of the set, will use turn = team A or B based on coin toss
 
-TeamAServeNewSet = [gameWon == na && turnToServe == team_A && checkAPlayerServe==1]Team_A_has_ball -> TeamAPlayer1Serve[]
-[gameWon == na && turnToServe == team_A && checkAPlayerServe==0]Team_A_has_ball -> TeamAPlayer2Serve;
-TeamBServeNewSet = [gameWon == na && turnToServe == team_B  && checkBPlayerServe==1]Team_B_has_ball -> TeamBPlayer1Serve[]
-[gameWon == na && turnToServe == team_B  && checkBPlayerServe==0]Team_B_has_ball ->TeamBPlayer2Serve;
+TeamAServeNewSet = [gameWon == na && turnToServe == team_A && checkAPlayerServe==1]Team_A_Player_1_Serve -> TeamAPlayer1Serve[]
+[gameWon == na && turnToServe == team_A && checkAPlayerServe==0]Team_A_Player_2_Serve -> TeamAPlayer2Serve;
+TeamBServeNewSet = [gameWon == na && turnToServe == team_B  && checkBPlayerServe==1]Team_B_Player_1_Serve -> TeamBPlayer1Serve[]
+[gameWon == na && turnToServe == team_B  && checkBPlayerServe==0]Team_B_Player_2_Serve ->TeamBPlayer2Serve;
 
 //to be added
 TeamAPlayer1Serve = Team_A_has_ball{ball_pos = grid_one; team_A2_player_pos = grid_three; team_A1_player_pos = grid_one; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} 
@@ -61,13 +61,14 @@ TeamBPlayer1Serve = Team_B_has_ball{ball_pos = grid_seven; team_B2_player_pos = 
 TeamBPlayer2Serve = Team_B_has_ball{ball_pos = grid_seven; team_B2_player_pos = grid_seven; team_B1_player_pos = grid_seven; team_A1_player_pos = grid_one; team_A2_player_pos = grid_two;} 
         -> Serve_B_Player2;
         
-TeamAServe = [gameWon == na && checkAPlayerServe==1]Team_A_has_ball -> TeamAPlayer1Serve[]
-[gameWon == na && checkAPlayerServe==0]Team_A_has_ball -> TeamAPlayer2Serve;
-TeamBServe = [gameWon == na  && checkBPlayerServe==1]Team_B_has_ball -> TeamBPlayer1Serve[]
-[gameWon == na  && checkBPlayerServe==0]Team_B_has_ball ->TeamBPlayer2Serve;
+TeamAServe = [gameWon == na && checkAPlayerServe==1]Team_A_Player_1_Serve -> TeamAPlayer1Serve[]
+[gameWon == na && checkAPlayerServe==0]Team_A_Player_2_Serve -> TeamAPlayer2Serve;
+TeamBServe = [gameWon == na  && checkBPlayerServe==1]Team_B_Player_1_Serve -> TeamBPlayer1Serve[]
+[gameWon == na  && checkBPlayerServe==0]Team_B_Player_2_Serve ->TeamBPlayer2Serve;
         
-#define team_A_win_game team_A_game_score == 2;
-#define team_B_win_game team_B_game_score == 2;
+#define team_A_win_game gameWon == team_A;
+#define team_B_win_game gameWon == team_B;
+
 #define team_A_win_set team_A_set_score >= team_B_set_score + winning_set_lead && 
 	((set_num == max_total_sets && team_A_set_score >= max_total_pts_last_set) ||
 	(team_A_set_score >= max_total_pts));
@@ -79,8 +80,8 @@ TeamBServe = [gameWon == na  && checkBPlayerServe==1]Team_B_has_ball -> TeamBPla
 New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++ } else {team_B_game_score++ }}
 	-> resetScore{team_A_set_score=0; team_B_set_score=0;}
 	-> incrementSet{set_num++}
-	-> checkForWin{if (team_A_win_game) { gameWon = team_A } else if (team_B_win_game) { gameWon = team_B } }
-	-> (TeamAServeNewSet [] TeamBServeNewSet);
+	-> checkForWin{if (team_A_game_score == 2) { gameWon = team_A } else if (team_B_game_score == 2) { gameWon = team_B } }
+	->if(gameWon == na){TeamAServeNewSet [] TeamBServeNewSet};
 
 // TODO: Make all 4 players reposition themselves to starting grid for new point
 // Can have some rules who is the one serving? (for full game)
@@ -181,7 +182,7 @@ DigServe_A_Player2 = pcase {
 };
 
 DigServe_B_Player1 = pcase {
-    50: Dig_serve_beside{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_seven;} 
+    10: Dig_serve_beside{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_seven;} 
             else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_five}}
             -> {firstBall = 0}
             -> Set_B_Player_2
@@ -426,5 +427,6 @@ Block_B_Player2 = pcase {
 };
 
 // should be close to 50-50 as points per match increase
+#assert BeachVolleyBallGame deadlockfree;
 #assert BeachVolleyBallGame reaches team_A_win_game with prob;
-//#assert BeachVolleyBallGame reaches team_B_win_game with prob;
+//#assert BeachVolleyBallGame reaches team_B_win_game with probb
