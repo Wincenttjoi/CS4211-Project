@@ -35,10 +35,10 @@ var team_B_set_score = 0;
 var team_A_game_score = 0;
 var team_B_game_score = 0;
 var turnToServe = na;
-var checkAPlayerServe = 1; // 1 means Team A player 1 serve, 0 means  Team A player 2 serve
-var checkBPlayerServe = 1; // 1 means Team B player 1 serve, 0 means  Team B player 2 serve
-var gameWon = na;
-var firstBall = 1;
+hvar checkAPlayerServe = 1; // 1 means Team A player 1 serve, 0 means  Team A player 2 serve
+hvar checkBPlayerServe = 1; // 1 means Team B player 1 serve, 0 means  Team B player 2 serve
+hvar gameWon = na;
+hvar firstBall = 1;
 
 BeachVolleyBallGame = WhoServe1st; (TeamAServeNewSet [] TeamBServeNewSet);
 
