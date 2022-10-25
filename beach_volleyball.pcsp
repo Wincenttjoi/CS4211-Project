@@ -81,10 +81,6 @@ New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++ } else {team
 Increment_Team_A_Set_Score = increment{team_A_set_score++; if (turnToServe==team_B){turnToServe=team_A;if(checkAPlayerServe==1){checkAPlayerServe=0}else{checkAPlayerServe=1}}} ->if (team_A_win_set) {New_Set} else {TeamAServe};
 Increment_Team_B_Set_Score = increment{team_B_set_score++; if (turnToServe==team_A){turnToServe=team_B;if(checkBPlayerServe==1){checkBPlayerServe=0}else{checkBPlayerServe=1}}} -> if (team_B_win_set) {New_Set} else {TeamBServe};
 
-
-Reset_ball_and_players(ball_reset_pos) = reset_ball_players{ ball_pos = ball_reset_pos; team_A1_player_pos = grid_one; team_A2_player_pos = grid_two; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} -> Skip;
-
-
 //-----------------------------------------------------------------------------------SERVE------------------------------------------------------------------------------------------------
 
 Serve_A_Player1 = pcase {
@@ -118,10 +114,8 @@ Serve_B_Player2 = pcase {
     50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
-// We can dig to same court or different side of court for flexibility
-// TODO: ball_pos can be grid 5-8
-// Can you dig again after a dig?
-// Can you dig directly straight to opponent court?
+// We split dig into dig serve and dig spike as we made the assmumption that only 1 player will
+// be digging the spike and 1 player will always block. This happens usually in the case of a real game.
 
 //-----------------------------------------------------------------------------------DIG------------------------------------------------------------------------------------------------
 
