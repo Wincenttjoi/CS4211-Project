@@ -1,5 +1,4 @@
 ﻿// Game states 
-// TODO: team side change court every multiple seven points in sets 1 and 2, and every 5 points in set 3
 //       A           B
 // +-----+-----+-----+-----+
 // |     |     ‖     |     |
@@ -23,7 +22,6 @@ enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven,
 #define max_total_pts_last_set 7;
 #define winning_set_lead 0;
 
-// TODO: teamA2 and teamB2 to represent second player in each team
 hvar team_A1_player_pos = grid_two;
 hvar team_A2_player_pos = grid_one;
 hvar team_B1_player_pos = grid_eight;
@@ -50,7 +48,6 @@ TeamAServeNewSet = [gameWon == na && turnToServe == team_A && checkAPlayerServe=
 TeamBServeNewSet = [gameWon == na && turnToServe == team_B  && checkBPlayerServe==1]Team_B_Player_1_Serve -> TeamBPlayer1Serve[]
 [gameWon == na && turnToServe == team_B  && checkBPlayerServe==0]Team_B_Player_2_Serve ->TeamBPlayer2Serve;
 
-//to be added
 TeamAPlayer1Serve = Team_A_has_ball{ball_pos = grid_one; team_A2_player_pos = grid_three; team_A1_player_pos = grid_one; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} 
         -> Serve_A_Player1;
 TeamAPlayer2Serve = Team_A_has_ball{ball_pos = grid_one; team_A2_player_pos = grid_one; team_A1_player_pos = grid_one; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} 
@@ -75,21 +72,17 @@ TeamBServe = [gameWon == na  && checkBPlayerServe==1]Team_B_Player_1_Serve -> Te
 	((set_num == max_total_sets && team_B_set_score >= max_total_pts_last_set) ||
 	(team_B_set_score >= max_total_pts));
 
-// Full game todo: retoss coin again if third round instead of using the same team 
 New_Set = updateGameScore{if (team_A_win_set) { team_A_game_score++ } else {team_B_game_score++ }}
 	-> resetScore{team_A_set_score=0; team_B_set_score=0;}
 	-> incrementSet{set_num++}
 	-> checkForWin{if (team_A_game_score == 2) { gameWon = team_A } else if (team_B_game_score == 2) { gameWon = team_B } }
 	->if(gameWon == na){TeamAServeNewSet [] TeamBServeNewSet};
 
-// TODO: Make all 4 players reposition themselves to starting grid for new point
-// Can have some rules who is the one serving? (for full game)
 Increment_Team_A_Set_Score = increment{team_A_set_score++; if (turnToServe==team_B){turnToServe=team_A;if(checkAPlayerServe==1){checkAPlayerServe=0}else{checkAPlayerServe=1}}} ->if (team_A_win_set) {New_Set} else {TeamAServe};
 Increment_Team_B_Set_Score = increment{team_B_set_score++; if (turnToServe==team_A){turnToServe=team_B;if(checkBPlayerServe==1){checkBPlayerServe=0}else{checkBPlayerServe=1}}} -> if (team_B_win_set) {New_Set} else {TeamBServe};
 
 
 Reset_ball_and_players(ball_reset_pos) = reset_ball_players{ ball_pos = ball_reset_pos; team_A1_player_pos = grid_one; team_A2_player_pos = grid_two; team_B1_player_pos = grid_eight; team_B2_player_pos = grid_seven;} -> Skip;
-// TODO: can dig from back grid to any position in opposite court
 
 
 //-----------------------------------------------------------------------------------SERVE------------------------------------------------------------------------------------------------
@@ -272,7 +265,6 @@ Set_B_Player_2 = pcase {
     50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
-// TODO: to expand with rollshot, cutshot etc
 // Attack process is just for decision making for the attacker, no change in ball_pos or player position should be done here
 //-----------------------------------------------------------------------------------ATTACK ------------------------------------------------------------------------------------------------
 Attack_A_Player_1 = pcase {
