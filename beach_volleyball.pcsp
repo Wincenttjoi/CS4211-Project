@@ -1,4 +1,4 @@
-// Game states 
+﻿// Game states 
 //       A           B
 // +-----+-----+-----+-----+
 // |     |     ‖     |     |
@@ -10,6 +10,9 @@
 // |     |     ‖     |     |
 // +-----+-----+-----+-----+
 
+// Player states
+// Team A - A1 (Taylor Sander) A2 (Taylor Crabb)
+// Team B - B1 (Phil Dalhausser) B2 (Casey Patterson)
 //-----------------------------------------------------------------------------------VARIABLES------------------------------------------------------------------------------------------------
 enum{grid_one, grid_two, grid_three, grid_four, grid_five, grid_six, grid_seven, grid_eight, out_of_court};
 
@@ -96,35 +99,35 @@ Increment_Team_B_Set_Score = increment{team_B_set_score++; firstBall = 1; if (tu
 //-----------------------------------------------------------------------------------SERVE------------------------------------------------------------------------------------------------
 
 Serve_A_Player1 = pcase {
-    13: Serve_short_diagonal{ball_pos = grid_five; team_A1_player_pos = grid_two;} -> DigB
-    13: Serve_long_diagonal{ball_pos = grid_seven; team_A1_player_pos = grid_two;} -> DigB
+    5: Serve_short_diagonal{ball_pos = grid_five; team_A1_player_pos = grid_two;} -> DigB
+    32: Serve_long_diagonal{ball_pos = grid_seven; team_A1_player_pos = grid_two;} -> DigB
     12: Serve_short_straight{ball_pos = grid_six; team_A1_player_pos = grid_one;} -> DigB
-    12: Serve_long_straight{ball_pos = grid_eight; team_A1_player_pos = grid_one;} -> DigB
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    21: Serve_long_straight{ball_pos = grid_eight; team_A1_player_pos = grid_one;} -> DigB
+    30: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Serve_A_Player2 = pcase {
-    13: Serve_short_diagonal{ball_pos = grid_six; team_A2_player_pos = grid_four;} -> DigB
-    13: Serve_long_diagonal{ball_pos = grid_eight; team_A2_player_pos = grid_four;} -> DigB
-    12: Serve_short_straight{ball_pos = grid_five; team_A2_player_pos = grid_three;} -> DigB
-    12: Serve_long_straight{ball_pos = grid_seven; team_A2_player_pos = grid_three;} -> DigB
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    12: Serve_short_diagonal{ball_pos = grid_six; team_A2_player_pos = grid_four;} -> DigB
+    26: Serve_long_diagonal{ball_pos = grid_eight; team_A2_player_pos = grid_four;} -> DigB
+    14: Serve_short_straight{ball_pos = grid_five; team_A2_player_pos = grid_three;} -> DigB
+    22: Serve_long_straight{ball_pos = grid_seven; team_A2_player_pos = grid_three;} -> DigB
+    26: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Serve_B_Player1 = pcase {
-    13: Serve_short_diagonal{ball_pos = grid_three; team_B1_player_pos = grid_eight;} -> DigA
-    13: Serve_long_diagonal{ball_pos = grid_one; team_B1_player_pos = grid_eight;} -> DigA
-    12: Serve_short_straight{ball_pos = grid_four; team_B1_player_pos = grid_seven;} -> DigA
-    12: Serve_long_straight{ball_pos = grid_two; team_B1_player_pos = grid_seven;} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    8: Serve_short_diagonal{ball_pos = grid_three; team_B1_player_pos = grid_eight;} -> DigA
+    28: Serve_long_diagonal{ball_pos = grid_one; team_B1_player_pos = grid_eight;} -> DigA
+    14: Serve_short_straight{ball_pos = grid_four; team_B1_player_pos = grid_seven;} -> DigA
+    22: Serve_long_straight{ball_pos = grid_two; team_B1_player_pos = grid_seven;} -> DigA
+    28: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 Serve_B_Player2 = pcase {
-    13: Serve_short_diagonal{ball_pos = grid_four; team_B2_player_pos = grid_six;} -> DigA
-    13: Serve_long_diagonal{ball_pos = grid_two; team_B2_player_pos = grid_six;} -> DigA
+    10: Serve_short_diagonal{ball_pos = grid_four; team_B2_player_pos = grid_six;} -> DigA
+    22: Serve_long_diagonal{ball_pos = grid_two; team_B2_player_pos = grid_six;} -> DigA
     12: Serve_short_straight{ball_pos = grid_three; team_B2_player_pos = grid_five;} -> DigA
-    12: Serve_long_straight{ball_pos = grid_one; team_B2_player_pos = grid_five;} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    37: Serve_long_straight{ball_pos = grid_one; team_B2_player_pos = grid_five;} -> DigA
+    19: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 // We split dig into dig serve and dig spike as we made the assmumption that only 1 player will
@@ -145,165 +148,157 @@ DigB =  [firstBall == 1 && (ball_pos == grid_five|| ball_pos == grid_seven)]Team
 //-----------------------------------------------------------------------------------DIG SERVE------------------------------------------------------------------------------------------------
 
 DigServe_A_Player1 = pcase {
-    10: Dig_serve_beside{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_two; firstBall = 0;} 
+    21: Dig_serve_beside{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_two; firstBall = 0;} 
             else if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;}}
             -> Set_A_Player_2
-    10: Dig_serve_diagonal{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;} 
+    26: Dig_serve_diagonal{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;} 
             else if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_two; firstBall = 0;}}
             -> Set_A_Player_2
-    10: Dig_serve_upwards{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;} 
+    11: Dig_serve_upwards{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;} 
             else if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;}}
-            -> Set_A_Player_2
-//    10: Dig_serve_front{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;}} -> Set_A_Player_2
-//    10: Dig_serve_backwards{if(ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;}} -> Set_A_Player_2
-    20: Dig_serve_front_backward{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;} 
+            -> Set_A_Player_2 
+    18: Dig_serve_front_backward{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;} 
     	else if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;}} -> Set_A_Player_2
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    24: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 DigServe_A_Player2 = pcase {
-    10: Dig_serve_beside{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;} 
+    20: Dig_serve_beside{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;} 
             else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;}}
             -> Set_A_Player_1
-   	10: Dig_serve_diagonal{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;} 
+   	23: Dig_serve_diagonal{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_three; firstBall = 0;} 
             else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_one; firstBall = 0;}}
             -> Set_A_Player_1
     10: Dig_serve_upwards{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_two; firstBall = 0;} 
             else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;}}
-            -> Set_A_Player_1
-//    10: Dig_serve_front{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;}} -> Set_A_Player_1
-//    10: Dig_serve_backwards{if(ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_two; firstBall = 0;}} -> Set_A_Player_1
-    20: Dig_serve_front_backward{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;}
+            -> Set_A_Player_1 
+    21: Dig_serve_front_backward{if(ball_pos == grid_two) {team_A2_player_pos = ball_pos; ball_pos = grid_four; firstBall = 0;}
     	else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_two; firstBall = 0;}} -> Set_A_Player_1
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    26: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 DigServe_B_Player1 = pcase {
-    10: Dig_serve_beside{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;} 
+    28: Dig_serve_beside{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;} 
             else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;}}
             -> Set_B_Player_2
-    10: Dig_serve_diagonal{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;} 
+    29: Dig_serve_diagonal{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;} 
             else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;}}
             -> Set_B_Player_2
-    10: Dig_serve_upwards{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;} 
+    8: Dig_serve_upwards{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;} 
             else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;}}
-            -> Set_B_Player_2
-//    10: Dig_serve_front{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;}}-> Set_B_Player_2
-//    10: Dig_serve_backwards{if(ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;}} -> Set_B_Player_2
-    20: Dig_serve_front_backward{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;}
+            -> Set_B_Player_2 
+    14: Dig_serve_front_backward{if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;}
     	else if (ball_pos == grid_six)  {team_B1_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;}} -> Set_B_Player_2
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    21: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 DigServe_B_Player2 = pcase {
-    10: Dig_serve_beside{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;} 
+    30: Dig_serve_beside{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;} 
             else if (ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;}}
             -> Set_B_Player_1
-    10: Dig_serve_diagonal{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;} 
+    21: Dig_serve_diagonal{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_six; firstBall = 0;} 
             else if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_eight; firstBall = 0;}}
             -> Set_B_Player_1
-    10: Dig_serve_upwards{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;} 
+    13: Dig_serve_upwards{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;} 
             else if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;}}
-            -> Set_B_Player_1
-//    10: Dig_serve_front{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;}} -> Set_B_Player_1
-//    10: Dig_serve_backwards{if(ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;}} -> Set_B_Player_1
-    20: Dig_serve_front_backward{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;}
+            -> Set_B_Player_1 
+    13: Dig_serve_front_backward{if(ball_pos == grid_seven) {team_B2_player_pos = ball_pos; ball_pos = grid_five; firstBall = 0;}
     	else if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_seven; firstBall = 0;}} -> Set_B_Player_1
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    23: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 //-----------------------------------------------------------------------------------DIG SPIKE ------------------------------------------------------------------------------------------------
 DigAttack_A_Player1 = pcase {
-    10: Dig_spike_beside{if( ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_two;}
+    21: Dig_spike_beside{if( ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_two;}
             else if (ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_one;}
             else if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_four;}
             else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_three;}}
             -> Set_A_Player_2
-    10: Dig_spike_diagonal{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_four;} 
+    27: Dig_spike_diagonal{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_four;} 
             else if (ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_three;}
             else if (ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_two;}
             else if (ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_one;}}
             -> Set_A_Player_2
-    20: Dig_spike_front_backwards{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_three;}
+    8: Dig_spike_front_backwards{if(ball_pos == grid_one) {team_A1_player_pos = ball_pos; ball_pos = grid_three;}
     		else if(ball_pos == grid_two) {team_A1_player_pos = ball_pos; ball_pos = grid_four;}
     		else if(ball_pos == grid_three) {team_A1_player_pos = ball_pos; ball_pos = grid_one;}
     		else if(ball_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_two;}
     		} -> Set_A_Player_2
-    10: Dig_spike_upwards{if(ball_pos == grid_one || ball_pos == grid_two || ball_pos == grid_three|| ball_pos == grid_four ) {team_A1_player_pos = ball_pos; ball_pos = ball_pos;}} 
+    4: Dig_spike_upwards{if(ball_pos == grid_one || ball_pos == grid_two || ball_pos == grid_three|| ball_pos == grid_four ) {team_A1_player_pos = ball_pos; ball_pos = ball_pos;}} 
             -> Set_A_Player_2
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    40: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 }; 
 
 
 DigAttack_B_Player1 = pcase {
-    10: Dig_spike_beside{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_six;} 
+    19: Dig_spike_beside{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_six;} 
             else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_five;}
             else if (ball_pos == grid_seven) {team_B1_player_pos = ball_pos; ball_pos = grid_eight;}
             else if (ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_seven;}}
             -> Set_B_Player_2
-    10: Dig_spike_diagonal{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_eight;} 
+    28: Dig_spike_diagonal{if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_eight;} 
             else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_seven;}
             else if (ball_pos == grid_seven) {team_B1_player_pos = ball_pos; ball_pos = grid_six;}
             else if (ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_five;}}
             -> Set_B_Player_2
-    20: Dig_spike_front_backwards{if(ball_pos == grid_seven) {team_B1_player_pos = ball_pos; ball_pos = grid_five;}
+    10: Dig_spike_front_backwards{if(ball_pos == grid_seven) {team_B1_player_pos = ball_pos; ball_pos = grid_five;}
     		else if(ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_six;}
     		else if(ball_pos == grid_five) {team_B1_player_pos = ball_pos; ball_pos = grid_seven;}
     		else if(ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_eight;}
     		} -> Set_B_Player_2
-    10: Dig_spike_upwards{if(ball_pos == grid_five || ball_pos == grid_six || ball_pos == grid_seven || ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = ball_pos;}} 
+    5: Dig_spike_upwards{if(ball_pos == grid_five || ball_pos == grid_six || ball_pos == grid_seven || ball_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = ball_pos;}} 
             -> Set_B_Player_2
-   	50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+   	38: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 }; 
 
 
 
 //-----------------------------------------------------------------------------------SET------------------------------------------------------------------------------------------------
 Set_A_Player_1 = pcase {
-	50: Set_Forward{if(team_A2_player_pos == grid_three || team_A2_player_pos == grid_one){team_A1_player_pos = ball_pos; ball_pos = grid_three; team_A2_player_pos = grid_three;} 
+	96: Set_Forward{if(team_A2_player_pos == grid_three || team_A2_player_pos == grid_one){team_A1_player_pos = ball_pos; ball_pos = grid_three; team_A2_player_pos = grid_three;} 
 			else if (team_A2_player_pos == grid_two || team_A2_player_pos == grid_four) {team_A1_player_pos = ball_pos; ball_pos = grid_four; team_A2_player_pos = grid_four;}} -> Attack_A_Player_2
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    4: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 Set_A_Player_2 = pcase {
-	50: Set_Forward{if(team_A1_player_pos == grid_three || team_A1_player_pos == grid_one){team_A2_player_pos = ball_pos; ball_pos = grid_three; team_A1_player_pos = grid_three;} 
+	98: Set_Forward{if(team_A1_player_pos == grid_three || team_A1_player_pos == grid_one){team_A2_player_pos = ball_pos; ball_pos = grid_three; team_A1_player_pos = grid_three;} 
 			else if (team_A1_player_pos == grid_two || team_A1_player_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_four; team_A1_player_pos = grid_four;}} -> Attack_A_Player_1
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    2: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 Set_B_Player_1 = pcase {
-    50: Set_Forward{if(team_B2_player_pos == grid_seven || team_B2_player_pos == grid_five){team_B1_player_pos = ball_pos; ball_pos = grid_five; team_B2_player_pos = grid_five} 
+    100: Set_Forward{if(team_B2_player_pos == grid_seven || team_B2_player_pos == grid_five){team_B1_player_pos = ball_pos; ball_pos = grid_five; team_B2_player_pos = grid_five} 
     		else if (team_B2_player_pos == grid_six || team_B2_player_pos == grid_eight) {team_B1_player_pos = ball_pos; ball_pos = grid_six; team_B2_player_pos = grid_six;}} -> Attack_B_Player_2
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    0: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 Set_B_Player_2 = pcase {
-    50: Set_Forward{if(team_B1_player_pos == grid_seven || team_B1_player_pos == grid_five){team_B2_player_pos = ball_pos; ball_pos = grid_five; team_B1_player_pos = grid_five} 
+    95: Set_Forward{if(team_B1_player_pos == grid_seven || team_B1_player_pos == grid_five){team_B2_player_pos = ball_pos; ball_pos = grid_five; team_B1_player_pos = grid_five} 
     		else if (team_B1_player_pos == grid_six || team_B1_player_pos == grid_eight) {team_B2_player_pos = ball_pos; ball_pos = grid_six; team_B1_player_pos = grid_six;}} -> Attack_B_Player_1
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    5: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 // Attack process is just for decision making for the attacker, no change in ball_pos or player position should be done here
 //-----------------------------------------------------------------------------------ATTACK ------------------------------------------------------------------------------------------------
 Attack_A_Player_1 = pcase {
-    50: Spike -> Spike_A_Player_1
-    25: Roll -> Roll_A_Player_1
-    25: Cut -> Cut_A_Player_1
+    64: Spike -> Spike_A_Player_1
+    20: Roll -> Roll_A_Player_1
+    16: Cut -> Cut_A_Player_1
 };
 
 Attack_A_Player_2 = pcase {
-    50: Spike -> Spike_A_Player_2
-    25: Roll -> Roll_A_Player_2
-    25: Cut -> Cut_A_Player_2
+    34: Spike -> Spike_A_Player_2
+    34: Roll -> Roll_A_Player_2
+    32: Cut -> Cut_A_Player_2
 };
 
 Attack_B_Player_1 = pcase {
-    50: Spike -> Spike_B_Player_1
+    52: Spike -> Spike_B_Player_1
     25: Roll -> Roll_B_Player_1
-    25: Cut -> Cut_B_Player_1
+    23: Cut -> Cut_B_Player_1
 };
 
 Attack_B_Player_2 = pcase {
-    50: Spike -> Spike_B_Player_2
-    25: Roll -> Cut_B_Player_2
-    25: Cut -> Cut_B_Player_2
+    54: Spike -> Spike_B_Player_2
+    27: Roll -> Cut_B_Player_2
+    19: Cut -> Cut_B_Player_2
 };
 
 // assumption: gets blocked directly infront instead of diagonal court (although the spike intended to be diagonal)
@@ -314,7 +309,7 @@ Spike_A_Player_1 = pcase {
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
     25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_eight;}
     		else if (ball_pos == grid_four) { ball_pos = grid_seven;}} -> DigB
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    20: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Roll_A_Player_1 = pcase {
@@ -407,27 +402,27 @@ Cut_B_Player_2 = pcase {
 
 //-----------------------------------------------------------------------------------BLOCK ------------------------------------------------------------------------------------------------
 Block_A_Player2 = pcase {
-    13: Block_short_straight{if (ball_pos == grid_three) {team_A2_player_pos = ball_pos; ball_pos = grid_five;}
+    36: Block_short_straight{if (ball_pos == grid_three) {team_A2_player_pos = ball_pos; ball_pos = grid_five;}
     		else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_six;}} -> DigB
     13: Block_long_straight{if (ball_pos == grid_three) {team_A2_player_pos = ball_pos; ball_pos = grid_seven;}
     		else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_eight;}} -> DigB
     12: Block_short_diagonal{if (ball_pos == grid_three) {team_A2_player_pos = ball_pos; ball_pos = grid_six;}
     		else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_five;}} -> DigB
-    12: Block_long_diagonal{if (ball_pos == grid_three) {team_A2_player_pos = ball_pos; ball_pos = grid_eight;}
+    7: Block_long_diagonal{if (ball_pos == grid_three) {team_A2_player_pos = ball_pos; ball_pos = grid_eight;}
     		else if (ball_pos == grid_four) {team_A2_player_pos = ball_pos; ball_pos = grid_seven;}} -> DigB 
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    32: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 }; 
 
 Block_B_Player2 = pcase {
-    13: Block_short_straight{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_three;}
+    32: Block_short_straight{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_three;}
     		else if (ball_pos == grid_six) {team_B2_player_pos = ball_pos; ball_pos = grid_four;}} -> DigA
-    13: Block_long_straight{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_one;}
+    12: Block_long_straight{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_one;}
     		else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_two;}} -> DigA
-    12: Block_short_diagonal{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_four;}
+    19: Block_short_diagonal{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_four;}
     		else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_three;}} -> DigA
-    12: Block_long_diagonal{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_two;}
+    10: Block_long_diagonal{if (ball_pos == grid_five) {team_B2_player_pos = ball_pos; ball_pos = grid_two;}
     		else if (ball_pos == grid_six) {team_B1_player_pos = ball_pos; ball_pos = grid_one;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    27: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 // deadlock check
