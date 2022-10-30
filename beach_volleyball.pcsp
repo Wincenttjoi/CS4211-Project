@@ -305,99 +305,99 @@ Attack_B_Player_2 = pcase {
 // if spike is not blocked, then the back opponent will dig (assume diagonal court for full game extensibility)
 
 Spike_A_Player_1 = pcase {
-    25: gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
+    22: Gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
-    25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_eight;}
+    66: Gets_digged{if (ball_pos == grid_three) { ball_pos = grid_eight;}
     		else if (ball_pos == grid_four) { ball_pos = grid_seven;}} -> DigB
-    20: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    12: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Roll_A_Player_1 = pcase {
-	25: gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
+	12: Gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
-    25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_seven;}
+    79: Gets_digged{if (ball_pos == grid_three) { ball_pos = grid_seven;}
     		else if (ball_pos == grid_four) { ball_pos = grid_eight;}} -> DigB
-	50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+	10: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Cut_A_Player_1 = pcase {
-	25: gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
+	10: Gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
-    25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_six;}
+    79: Gets_digged{if (ball_pos == grid_three) { ball_pos = grid_six;}
     		else if (ball_pos == grid_four) { ball_pos = grid_five;}} -> DigB
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    11: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Spike_A_Player_2 = pcase {
-    25: gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
+    17: Gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
-    25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_eight;}
+    62: Gets_digged{if (ball_pos == grid_three) { ball_pos = grid_eight;}
     		else if (ball_pos == grid_four) { ball_pos = grid_seven;}} -> DigB
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    21: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Roll_A_Player_2 = pcase {
-	25: gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
+	7: Gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
-    25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_seven;}
+    72: Gets_digged{if (ball_pos == grid_three) { ball_pos = grid_seven;}
     		else if (ball_pos == grid_four) { ball_pos = grid_eight;}} -> DigB
-	50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+	21: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Cut_A_Player_2 = pcase {
-	25: gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
+	6: Gets_blocked{if(ball_pos == grid_three) {ball_pos = grid_five;}
     		else if (ball_pos == grid_four) { ball_pos = grid_six;}} -> Block_B_Player2
-    25: gets_digged{if (ball_pos == grid_three) { ball_pos = grid_six;}
+    81: Gets_digged{if (ball_pos == grid_three) { ball_pos = grid_six;}
     		else if (ball_pos == grid_four) { ball_pos = grid_five;}} -> DigB
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
+    13: Fault{ball_pos = out_of_court} -> Increment_Team_B_Set_Score
 };
 
 Spike_B_Player_1 = pcase {
-    25: gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
+    10: Gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
     		else if (ball_pos == grid_six) { ball_pos = grid_four;}} -> Block_A_Player2
-    25: gets_digged{if (ball_pos == grid_five) { ball_pos = grid_two;}
+    78: Gets_digged{if (ball_pos == grid_five) { ball_pos = grid_two;}
     		else if (ball_pos == grid_six) { ball_pos = grid_one;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    12: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 Roll_B_Player_1 = pcase {
-	25: gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
+	20: Gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
     		else if (ball_pos == grid_six) { ball_pos = grid_four;}} -> Block_A_Player2
-    25: gets_digged{if (ball_pos == grid_five) { ball_pos = grid_one;}
+    69: Gets_digged{if (ball_pos == grid_five) { ball_pos = grid_one;}
     		else if (ball_pos == grid_six) { ball_pos = grid_two;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    11: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 Cut_B_Player_1 = pcase {
-	25: gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
+	18: Gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
     		else if (ball_pos == grid_six) { ball_pos = grid_four;}} -> Block_A_Player2
-    25: gets_digged{if (ball_pos == grid_five) { ball_pos = grid_four;}
+    72: Gets_digged{if (ball_pos == grid_five) { ball_pos = grid_four;}
     		else if (ball_pos == grid_six) { ball_pos = grid_three;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    10: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 Spike_B_Player_2 = pcase {
-    25: gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
+    13: Gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
     		else if (ball_pos == grid_six) { ball_pos = grid_four;}} -> Block_A_Player2
-    25: gets_digged{if (ball_pos == grid_five) { ball_pos = grid_two;}
+    81: Gets_digged{if (ball_pos == grid_five) { ball_pos = grid_two;}
     		else if (ball_pos == grid_six) { ball_pos = grid_one;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    6: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 Roll_B_Player_2 = pcase {
-	25: gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
+	12: Gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
     		else if (ball_pos == grid_six) { ball_pos = grid_four;}} -> Block_A_Player2
-    25: gets_digged{if (ball_pos == grid_five) { ball_pos = grid_one;}
+    74: Gets_digged{if (ball_pos == grid_five) { ball_pos = grid_one;}
     		else if (ball_pos == grid_six) { ball_pos = grid_two;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    14: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 Cut_B_Player_2 = pcase {
-	25: gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
+	16: Gets_blocked{if(ball_pos == grid_five) { ball_pos = grid_three;}
     		else if (ball_pos == grid_six) { ball_pos = grid_four;}} -> Block_A_Player2
-    25: gets_digged{if (ball_pos == grid_five) { ball_pos = grid_four;}
+    72: Gets_digged{if (ball_pos == grid_five) { ball_pos = grid_four;}
     		else if (ball_pos == grid_six) { ball_pos = grid_three;}} -> DigA
-    50: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
+    12: Fault{ball_pos = out_of_court} -> Increment_Team_A_Set_Score
 };
 
 //-----------------------------------------------------------------------------------BLOCK ------------------------------------------------------------------------------------------------
